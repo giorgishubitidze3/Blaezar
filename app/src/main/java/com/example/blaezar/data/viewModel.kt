@@ -3,6 +3,8 @@ package com.example.blaezar.data
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import android.provider.OpenableColumns
 import android.util.Log
 import android.widget.TextView
@@ -16,8 +18,14 @@ import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import java.io.BufferedReader
+import java.io.File
+import java.io.FileInputStream
 import java.io.InputStreamReader
+import java.nio.channels.FileChannel
+import java.nio.charset.Charset
+import java.nio.file.Files.getOwner
 
 
 class viewModel: ViewModel() {
@@ -26,8 +34,15 @@ class viewModel: ViewModel() {
 
     private val TAG = "YourTag"
     private val database = FirebaseDatabase.getInstance()
-    private val myDataReference = database.getReference("myData")
+    private val myDataReference = database.reference
     private val interestsReference = database.getReference("user_interests")
+
+
+    fun testPush(){
+        myDataReference.setValue("Hello World")
+    }
+
+
 
     fun getNumberOfItems(callback: (Int) -> Unit) {
         interestsReference.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -73,7 +88,9 @@ class viewModel: ViewModel() {
 
     private fun uploadInterests(jsonData: jsonData) {
         // Assuming you want to overwrite the existing data in 'user_interests'
-        interestsReference.setValue(jsonData)
+        //interestsReference.setValue(jsonData)
+
+        myDataReference.setValue(jsonData)
     }
 
     fun handleFileSelection(
@@ -117,5 +134,59 @@ class viewModel: ViewModel() {
         val name = cursor?.getString(nameIndex ?: -1)
         cursor?.close()
         return name
+    }
+
+
+
+    fun parseJson() {
+        val jsonObj = JSONObject(readFile())
+        val topics = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            getTopics(jsonObj.getJSONObject("topics_v2"))
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
+
+        // Update the database with the parsed topics
+        // Call your database update function here
+    }
+
+    fun getTopics(jsonObject: JSONObject): jsonData {
+        val topicsArray = jsonObject.getJSONArray("topics_v2")
+        val topicsList = mutableListOf<String>()
+
+        for (i in 0 until topicsArray.length()) {
+            val topic = topicsArray.getString(i)
+            topicsList.add(topic)
+        }
+
+        return jsonData(topicsList)
+    }
+
+    fun readFile(): String {
+        val file = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
+            "myJson.json"
+        )
+
+        if (!file.exists()) {
+            // Handle the case where the file does not exist
+            return ""
+        }
+
+        val stream = FileInputStream(file)
+        var jsonString = ""
+
+        stream.use { stream ->
+            val fileChannel = stream.channel
+
+            val mappedByteBuffer = fileChannel.map(
+                FileChannel.MapMode.READ_ONLY,
+                0,
+                fileChannel.size()
+            )
+            jsonString = Charset.defaultCharset().decode(mappedByteBuffer).toString()
+        }
+
+        return jsonString
     }
 }

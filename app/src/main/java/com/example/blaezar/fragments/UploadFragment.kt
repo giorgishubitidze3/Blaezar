@@ -1,9 +1,13 @@
 package com.example.blaezar.fragments
 
 import android.app.Activity
+import android.app.Application
+import android.content.Context
 import android.content.Intent
+import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -13,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -23,7 +28,7 @@ import org.w3c.dom.Text
 
 class UploadFragment : Fragment() {
     private val viewModel: viewModel by viewModels()
-
+    private var selectedFileUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,9 +54,33 @@ class UploadFragment : Fragment() {
 
         val textView2 = view.findViewById<TextView>(R.id.itemsCount2)
 
+        val testButton = view.findViewById<Button>(R.id.testButton)
+
+        val sendButton = view.findViewById<Button>(R.id.sendButton)
+
 
         uploadButton.setOnClickListener {
             openFilePicker()
+        }
+
+        testButton.setOnClickListener {
+            viewModel.testPush()
+        }
+
+
+        sendButton.setOnClickListener {
+            selectedFileUri?.let { uri ->
+                viewModel.handleFileSelection(
+                    requireActivity().application,
+                    requireContext(),
+                    uri
+                ) { result ->
+                    // Handle the result as needed
+                    Log.d("myTag", result)
+                }
+            } ?: run {
+                Toast.makeText(requireContext(), "Please choose a file first", Toast.LENGTH_SHORT).show()
+            }
         }
 
 
@@ -74,6 +103,18 @@ class UploadFragment : Fragment() {
         intent.type = "*/*"
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("application/json", "application/zip"))
+
+        val tempFile = createTempFile("temp", ".json", requireContext().getExternalFilesDir(null))
+
+        val fileUri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
+            tempFile
+        )
+
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
         startActivityForResult(intent, FILE_PICK_REQUEST_CODE)
     }
 
@@ -82,23 +123,35 @@ class UploadFragment : Fragment() {
 
         if (requestCode == FILE_PICK_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             data?.data?.let { uri ->
-                // Update the TextView with the selected file name
-                view?.findViewById<TextView>(R.id.selectedItemTv)?.text =
-                    "Selected item: ${viewModel.getFileName(requireActivity().application, uri)}"
-                // Handle the selected file URI (e.g., upload it to Firebase)
-                viewModel.handleFileSelection(
-                    requireActivity().application,
-                    requireContext(),
-                    uri
-                ) { result ->
-                    // Handle the result as needed
-                    println(result)
+                val filePath = getPathFromUri(requireActivity().application, uri)
+                if (filePath != null) {
+                    view?.findViewById<TextView>(R.id.selectedItemTv)?.text =
+                        "Selected item: $filePath"
+                    selectedFileUri = Uri.parse("file://$filePath")
+                } else {
+                    Toast.makeText(requireContext(), "Error getting file path", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
-
+    private fun getPathFromUri(application: Application, uri: Uri): String? {
+        var path: String? = null
+        try {
+            val cursor = application.contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val columnIndex = it.getColumnIndex(MediaStore.Images.Media.DATA)
+                    if (columnIndex != -1) {
+                        path = it.getString(columnIndex)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return path
+    }
 
     companion object {
         const val FILE_PICK_REQUEST_CODE = 123 // Arbitrary request code
