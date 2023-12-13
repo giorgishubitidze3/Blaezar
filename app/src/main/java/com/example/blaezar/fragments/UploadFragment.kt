@@ -1,9 +1,11 @@
 package com.example.blaezar.fragments
 
+import android.Manifest
 import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
@@ -17,6 +19,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
@@ -24,6 +28,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.blaezar.R
 import com.example.blaezar.data.viewModel
 import org.w3c.dom.Text
+import java.io.FileReader
 
 
 class UploadFragment : Fragment() {
@@ -33,7 +38,14 @@ class UploadFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
+
+
+
     }
+
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,6 +62,8 @@ class UploadFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
+
+
         val uploadButton = view.findViewById<Button>(R.id.uploadButton)
 
         val textView2 = view.findViewById<TextView>(R.id.itemsCount2)
@@ -57,6 +71,8 @@ class UploadFragment : Fragment() {
         val testButton = view.findViewById<Button>(R.id.testButton)
 
         val sendButton = view.findViewById<Button>(R.id.sendButton)
+
+
 
 
         uploadButton.setOnClickListener {
@@ -153,7 +169,22 @@ class UploadFragment : Fragment() {
         return path
     }
 
+    fun readFromFile(filename: String){
+        try{
+            var fin= FileReader(filename)
+            var c:Int?
+            do{
+                c = fin.read()
+                view?.findViewById<TextView>(R.id.itemsCount2)?.text = c.toChar().toString()
+            }while (c!=1)
+        }
+        catch(e:Exception){
+            e.message
+        }
+    }
+
     companion object {
         const val FILE_PICK_REQUEST_CODE = 123 // Arbitrary request code
+        private const val REQUEST_STORAGE_PERMISSION = 123 // Use any unique request code
     }
 }

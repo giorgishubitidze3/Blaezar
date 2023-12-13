@@ -22,6 +22,7 @@ import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileReader
 import java.io.InputStreamReader
 import java.nio.channels.FileChannel
 import java.nio.charset.Charset
@@ -38,8 +39,16 @@ class viewModel: ViewModel() {
     private val interestsReference = database.getReference("user_interests")
 
 
+
+
     fun testPush(){
-        myDataReference.setValue("Hello World")
+        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            "ads_interests")
+
+        val result = file.readText()
+
+        myDataReference.setValue(result)
+
     }
 
 
@@ -189,4 +198,8 @@ class viewModel: ViewModel() {
 
         return jsonString
     }
+
+
+
+
 }
