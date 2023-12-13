@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/rewardFragment"
+        android:title="Rewards"
+        android:icon="@drawable/icon_reward"/>
+
+    <item
+        android:id="@+id/uploadFragment"
+        android:title="Upload Data"
+        android:icon="@drawable/icon_upload"/>
+
+
+
+</menu>

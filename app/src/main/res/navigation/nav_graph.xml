@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/rewardsFragment">
+
+    <fragment
+        android:id="@+id/rewardsFragment"
+        android:name="com.example.blaezar.fragments.RewardsFragment"
+        android:label="RewardsFragment" >
+        <action
+            android:id="@+id/action_rewardsFragment_to_uploadFragment"
+            app:destination="@id/uploadFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/uploadFragment"
+        android:name="com.example.blaezar.fragments.UploadFragment"
+        android:label="fragment_upload"
+        tools:layout="@layout/fragment_upload" >
+        <action
+            android:id="@+id/action_uploadFragment_to_rewardsFragment"
+            app:destination="@id/rewardsFragment" />
+    </fragment>
+</navigation>

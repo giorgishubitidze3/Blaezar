@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "226744645955",
+    "firebase_url": "https://blaezar-52874-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "blaezar-52874",
+    "storage_bucket": "blaezar-52874.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:226744645955:android:b4292da02da744a37d97f6",
+        "android_client_info": {
+          "package_name": "com.example.blaezar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVm_CKqUGJ4ask0UDm349dKbKzeKFlNYs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
