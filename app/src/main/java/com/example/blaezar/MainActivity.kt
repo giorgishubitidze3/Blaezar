@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
@@ -68,11 +69,7 @@ class MainActivity : AppCompatActivity() {
                 REQUEST_STORAGE_PERMISSION_CODE
             )
         } else {
-            // Permission already granted, proceed with your logic
-            val fragment = UploadFragment()
-            val transaction = supportFragmentManager.beginTransaction()
-            transaction.add(R.id.fragment_container, fragment)
-            transaction.commit()
+          Log.d("tag","perm error Main activity")
         }
             }
 

@@ -34,6 +34,7 @@ import java.io.FileReader
 class UploadFragment : Fragment() {
     private val viewModel: viewModel by viewModels()
     private var selectedFileUri: Uri? = null
+    private var fileNamee = " "
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,10 +67,6 @@ class UploadFragment : Fragment() {
 
         val uploadButton = view.findViewById<Button>(R.id.uploadButton)
 
-        val textView2 = view.findViewById<TextView>(R.id.itemsCount2)
-
-        val testButton = view.findViewById<Button>(R.id.testButton)
-
         val sendButton = view.findViewById<Button>(R.id.sendButton)
 
 
@@ -78,39 +75,15 @@ class UploadFragment : Fragment() {
         uploadButton.setOnClickListener {
             openFilePicker()
         }
-
-        testButton.setOnClickListener {
-            viewModel.testPush()
-        }
-
-
         sendButton.setOnClickListener {
-            selectedFileUri?.let { uri ->
-                viewModel.handleFileSelection(
-                    requireActivity().application,
-                    requireContext(),
-                    uri
-                ) { result ->
-                    // Handle the result as needed
-                    Log.d("myTag", result)
-                }
-            } ?: run {
-                Toast.makeText(requireContext(), "Please choose a file first", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-
-        viewModel.getNumberOfItems { itemCount ->
-            if (itemCount >= 0) {
-                view.findViewById<TextView>(R.id.itemsCount).text = "Number of items: $itemCount"
+            if (fileNamee != null || fileNamee != " ") {
+                val fileName = fileNamee
+                fileName?.let { it1 -> viewModel.testPush(it1) }
             } else {
-                Toast.makeText(requireContext(), "Error getting item count", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "No file selected", Toast.LENGTH_SHORT).show()
             }
-            Log.d("ItemCountDebug", "Item count: $itemCount")
         }
 
-
-        viewModel.fetchAndSetItemData(textView2)
 
     }
 
@@ -139,49 +112,41 @@ class UploadFragment : Fragment() {
 
         if (requestCode == FILE_PICK_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             data?.data?.let { uri ->
-                val filePath = getPathFromUri(requireActivity().application, uri)
-                if (filePath != null) {
-                    view?.findViewById<TextView>(R.id.selectedItemTv)?.text =
-                        "Selected item: $filePath"
-                    selectedFileUri = Uri.parse("file://$filePath")
+                val fileName = getFileNameFromUri(uri)
+                if (fileName != null) {
+                    view?.let { view ->
+                        viewModel.setFileName(fileName, view.findViewById<TextView>(R.id.selectedItemTv)
+                        )
+                        fileNamee=fileName
+                    }
+                    Toast.makeText(requireContext(), "Selected file: $fileName", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(requireContext(), "Error getting file path", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Error getting file name", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
-    private fun getPathFromUri(application: Application, uri: Uri): String? {
-        var path: String? = null
+
+    private fun getFileNameFromUri(uri: Uri): String? {
+        var fileName: String? = null
         try {
-            val cursor = application.contentResolver.query(uri, null, null, null, null)
+            val cursor = requireContext().contentResolver.query(uri, null, null, null, null)
             cursor?.use {
                 if (it.moveToFirst()) {
-                    val columnIndex = it.getColumnIndex(MediaStore.Images.Media.DATA)
+                    val columnIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                     if (columnIndex != -1) {
-                        path = it.getString(columnIndex)
+                        fileName = it.getString(columnIndex)
                     }
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        return path
+        return fileName
     }
 
-    fun readFromFile(filename: String){
-        try{
-            var fin= FileReader(filename)
-            var c:Int?
-            do{
-                c = fin.read()
-                view?.findViewById<TextView>(R.id.itemsCount2)?.text = c.toChar().toString()
-            }while (c!=1)
-        }
-        catch(e:Exception){
-            e.message
-        }
-    }
+
 
     companion object {
         const val FILE_PICK_REQUEST_CODE = 123 // Arbitrary request code

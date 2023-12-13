@@ -52,39 +52,4 @@
         android:id="@+id/sendButton"/>
 
 
-    <TextView
-        android:id="@+id/itemsCount"
-        android:layout_width="398dp"
-        android:layout_height="wrap_content"
-        android:text="Number of items: "
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/uploadButton"
-        android:ellipsize="end"/>
-
-    <TextView
-        android:id="@+id/itemsCount2"
-        android:layout_width="398dp"
-        android:layout_height="wrap_content"
-        android:text="Number of items: "
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/itemsCount"
-        android:ellipsize="end"/>
-
-
-    <Button
-        android:id="@+id/testButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="test"
-        app:layout_constraintBottom_toTopOf="@+id/textView2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
